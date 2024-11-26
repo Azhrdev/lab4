@@ -1,0 +1,11 @@
+Answer 1:
+This is because the handling of each exception/interrupt has its own handler function, so the mechanism of handling each exception type may differ. We could not implement specific protection and handling of exceptions of different types, which is important for the correct protection of the system and debugging.
+
+Answer 2:
+The softint program attempts to perform int $14 which is the page fault interrupt vector, but produces interrupt vector 13, the general protection fault. This occurs because the user program is at privilege level 3 while the interrupt DPL is set to 0. If a userspace program tries to directly call a kernel-level interrupt the processor will raise a general protection fault to deny access to the system.
+
+Answer 3: 
+Depending on the DPL setting in the IDT entry the breakpoint test case will give a breakpoint exception or a general protection fault. In order to get the breakpoint exception, the IDT entry has to be set with DPL 3 to allow user access. If set to DPL 0, it will cause a general protection fault as user mode code (CPL 3) cannot call an interrupt service routine of a higher privilege level.
+
+Answer 4:
+These mechanisms assist in the enforcement of the principle of privilege separation. It restricts user code from directly invoking Kernel functionality or some critical interrupt. As the kernel will only allow specific privilege levels and access through the IDT, the user programs can only communicate with the kernel through well defined pathways such as system calls.

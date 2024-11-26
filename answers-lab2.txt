@@ -1,0 +1,22 @@
+Question 1:
+uintptr_t
+
+Question 2:
+At this point a few entries to the page directory have been populated. The lower entries from 0 to 1 and 2 address the first 12MB of physical memory inclusive of the I/O hole. The most important kernel related entries occupy the upper range of the directory. Entry 956 has virtual address 0xEF000000 which maps to the page table for the ‘pages’ array to allow the kernel to provide it to user processes. It is important to know that entry 957, or 0xEF400000 in hexadecimal, which is set up during initialization, contains a recursive mapping for the page directory itself, thus allowing the UVPT mechanism. The address 0xEFC00000 maps the kernel stack entry 959. As for the entry from 960 to 1022, (0xF0000000 ~ 0xFFC00000) it designs the mapping for the kernel’s memory above KERNBASE. Lastly, entry 1023 (0xFFC00000) is a look up for the last page table for the uppermost 4 MB of physical memory. This configuration defines the basic memory organization the user space and the kernel space are formed as well as other structures needed for Memory Management.
+
+Question 3:
+In general, an operating system uses two mechanisms to protect kernel space: segmentation and paging. There is no segmentation activated in JOS yet; hence, protection is done through paging. Kernels for their part do not have the PTE_U (user-accessible) bit set, which allows user space to not access kernel memory and thereby forming a proper separation.
+
+Question 4:
+JOS operating system has an ability to work with physical memory up to 2 GB. This constraint becomes apparent because 4MB is dedicated to the storage of PageInfo structs and one struct occupies 8 bytes. This makes it possible to accommodate 512,000 PageInfo entries, each entry being in charge of a 4 KB page. This means that as much as 512,000 * 4 KB or 2 GB of memory can be dealt with.
+
+Question 5:
+For managing the maximum memory of 2GB, the overhead is broken down as follows:
+
+4MB of RAM committed for the array containing pointers to each physical page represented by a PageInfo structure.
+It is for this reason that an additional of 2MB is used for the page table entries.
+The another 4KB is reserved for the page directory.
+In the aggregate, the overhead comes to about 6MB for maintaining 2GB of memory.
+
+Question 6:
+The transition to executing code above KERNBASE occurs after the instruction jmp *%eax is executed. This is possible because when the entry_pgdir variable maps the address space from sectors [0, 4MB), it maps the virtual address space of the same range, [0,4MB). But later if the system transfers to kern_pgdir, the mapping for addresses <4MB will be removed.
